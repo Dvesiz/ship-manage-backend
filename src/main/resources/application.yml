@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ship_management
+    username: root
+    password: 123456
+
+  mybatis-plus:
+    configuration:
+      map-underscore-to-camel-case: true # ????????
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # ????? SQL ?????????
+
+  mail:
+    host: smtp.resend.com
+    port: 465
+    username: resend
+    password: re_J6zbfm3o_3j8w1FV2YAVqnPf1Q8qAc5Fw  # 你的 Resend API Key
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            enable: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+
+resend:
+  api-key: re_J6zbfm3o_3j8w1FV2YAVqnPf1Q8qAc5Fw
+  from-email: system@mail.donghangyu.dpdns.org
