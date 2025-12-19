@@ -19,6 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
                 // 拦截所有路径
                 .addPathPatterns("/**")
                 // ⚠️ 放行登录和注册接口 (一定要排除这俩，否则谁也进不去)
-                .excludePathPatterns("/user/login", "/user/register");
+                .excludePathPatterns("/user/login", "/user/register",
+                        "user/loginByEmail");
     }
 }

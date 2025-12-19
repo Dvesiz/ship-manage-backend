@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dhy.shipmanagebackend.entity.User;
 import com.dhy.shipmanagebackend.mapper.UserMapper;
 import com.dhy.shipmanagebackend.service.UserService;
+import com.dhy.shipmanagebackend.utils.JwtUtil;
 import com.dhy.shipmanagebackend.utils.Md5Util;
 import com.dhy.shipmanagebackend.utils.RandomUtil;
 import jakarta.mail.internet.MimeMessage;
@@ -16,6 +17,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -144,5 +147,30 @@ public class UserServiceImpl implements UserService {
         // 设置 updated_at
         user.setUpdatedAt(java.time.LocalDateTime.now());
         userMapper.updateById(user);
+    }
+
+    @Override
+    public String loginByEmail(String email, String code) {
+        String redisCode = stringRedisTemplate.opsForValue().get("register:code:" + email);
+
+        if (redisCode == null || !redisCode.equals(code)) {
+            throw new RuntimeException("验证码错误或已失效");
+        }
+
+        User user = userMapper.findByEmail(email);
+        if (user == null) {
+            // 这里建议抛出异常或者自动注册，具体看你业务
+            throw new RuntimeException("该邮箱尚未注册");
+        }
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", user.getId());
+        claims.put("username", user.getUsername());
+        String token = JwtUtil.genToken(claims);
+
+        stringRedisTemplate.opsForValue().set(token, token, 12, TimeUnit.HOURS);
+        stringRedisTemplate.delete("login:code:" + email);
+
+        return token;
     }
 }

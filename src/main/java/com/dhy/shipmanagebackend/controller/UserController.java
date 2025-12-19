@@ -80,6 +80,15 @@ public class UserController {
         return Result.error("密码错误");
     }
 
+    @PostMapping("/loginByEmail")
+    public Result<String> loginByEmail(String email, String code) {
+        if (code == null || code.length() != 6) {
+            return Result.error("验证码格式错误");
+        }
+        String token = userService.loginByEmail(email, code);
+        return Result.success(token);
+    }
+
     @GetMapping("/info")
     public Result<User> userInfo() {
         // 1. 从 ThreadLocal 获取当前登录用户的数据

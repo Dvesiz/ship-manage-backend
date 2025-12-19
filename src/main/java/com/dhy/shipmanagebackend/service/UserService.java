@@ -14,4 +14,6 @@ public interface UserService {
     void sendCode(String email);
     // 更新用户
     void update(User user);
+    //邮箱登录
+    String loginByEmail(String email, String code);
 }
