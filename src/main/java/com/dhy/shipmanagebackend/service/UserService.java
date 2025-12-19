@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 public interface UserService {
     User findByUsername(String username);
-    // 注册
-    void register(String username, String password , String email);
+    // 修改：增加 code 参数
+    void register(String username, String password, String email, String code);
+    // 新增：发送验证码
+    void sendCode(String email);
     // 更新用户
     void update(User user);
 }

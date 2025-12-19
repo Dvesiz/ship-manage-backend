@@ -7,6 +7,7 @@ import com.dhy.shipmanagebackend.service.UserService;
 import com.dhy.shipmanagebackend.utils.JwtUtil;
 import com.dhy.shipmanagebackend.utils.Md5Util;
 import com.dhy.shipmanagebackend.utils.ThreadLocalUtil;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -23,15 +24,24 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @PostMapping("/send-code")
+    public Result sendCode(@RequestParam @Email String email) {
+        // 这里可以先简单校验一下邮箱是否已被注册
+        // ... (可选逻辑)
+
+        userService.sendCode(email);
+        return Result.success("验证码已发送，请注意查收");
+    }
     @PostMapping("/register")
     public Result register(@Pattern(regexp = "^\\S{5,16}$") String username,
                            @Pattern(regexp = "^\\S{5,16}$") String password,
-                           @Email String email) { // 增加邮箱校验
+                           @Email String email,
+                           @NotBlank(message = "验证码不能为空")String code) { // 增加邮箱校验
 
         User u = userService.findByUsername(username);
         if (u == null) {
             // 传入 email
-            userService.register(username, password, email);
+            userService.register(username, password, email,code);
             return Result.success();
         } else {
             return Result.error("用户名已被占用");
