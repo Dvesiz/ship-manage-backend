@@ -7,17 +7,21 @@ import com.dhy.shipmanagebackend.mapper.UserMapper;
 import com.dhy.shipmanagebackend.service.UserService;
 import com.dhy.shipmanagebackend.utils.Md5Util;
 import com.dhy.shipmanagebackend.utils.RandomUtil;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private static final Logger logger = Logger.getLogger(UserServiceImpl.class.getName());
     @Autowired
     private UserMapper userMapper;
     @Autowired
@@ -47,16 +51,60 @@ public class UserServiceImpl implements UserService {
     public void sendCode(String email) {
         // 1. 生成 6 位随机验证码
         String code = RandomUtil.getSixBitRandom();
+        String Codehtml = "<div style=\"background-color: #f6f8fa; padding: 20px; font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;\">" +
 
+                // 卡片容器：白底，微弱边框，圆角
+                "<div style=\"max-width: 500px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; overflow: hidden;\">" +
+
+                // 头部：品牌色条或简单的标题
+                "<div style=\"padding: 24px; border-bottom: 1px solid #e1e4e8; background-color: #ffffff;\">" +
+                "<h1 style=\"margin: 0; font-size: 20px; color: #24292e; font-weight: 600;\">船舶管理系统</h1>" +
+                "</div>" +
+
+                // 内容区域
+                "<div style=\"padding: 32px 24px;\">" +
+                "<p style=\"margin: 0 0 20px; font-size: 16px; color: #24292e;\">您好，</p>" +
+                "<p style=\"margin: 0 0 24px; font-size: 16px; color: #24292e; line-height: 1.6;\">" +
+                "我们收到了您的登录/注册请求。请使用以下验证码完成身份验证：" +
+                "</p>" +
+
+                // 验证码区域：灰色背景盒，强调文字
+                "<div style=\"background-color: #f6f8fa; padding: 16px; text-align: center; border-radius: 6px; margin-bottom: 24px;\">" +
+                "<span style=\"font-size: 32px; font-family: monospace; font-weight: 700; letter-spacing: 6px; color: #0969da;\">" +
+                code +
+                "</span>" +
+                "</div>" +
+
+                // 提示信息
+                "<p style=\"margin: 0; font-size: 14px; color: #57606a;\">" +
+                "该验证码将在 <strong>5 分钟</strong> 后失效。如果这不是您的操作，请忽略此邮件。" +
+                "</p>" +
+                "</div>" +
+
+                // 底部：弱化显示的版权信息
+                "<div style=\"padding: 16px 24px; background-color: #f6f8fa; border-top: 1px solid #e1e4e8; font-size: 12px; color: #8c959f; text-align: center;\">" +
+                "<p style=\"margin: 0;\">此邮件由系统自动发送，请勿回复。</p>" +
+                "<p style=\"margin: 5px 0 0;\">© 2025 Ship Management System</p>" +
+                "</div>" +
+
+                "</div>" +
+                "</div>";
         // 2. 发送邮件
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail); // 必须和配置文件里的一致
-        message.setTo(email);
-        message.setSubject("【船舶管理系统】注册验证码");
-        message.setText("您好，您的注册验证码是：" + code + "，有效期为5分钟，请勿泄露给他人。");
-
         try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            // ⚠️ 关键修改：这里不能写 163 邮箱，必须用配置里的变量
+            helper.setFrom(fromEmail, "船舶管理系统官方"); // 第二个参数是发件人昵称
+
+            helper.setTo(email);
+            helper.setSubject("【船舶管理系统】登录验证码");
+            helper.setText(Codehtml, true);
+
             mailSender.send(message);
+
+            logger.info("邮件发送成功！验证码为："+ code);
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("邮件发送失败，请检查邮箱地址或稍后重试");
@@ -85,7 +133,6 @@ public class UserServiceImpl implements UserService {
         user.setUsername(username);
         user.setPasswordHash(md5Password);
         user.setEmail(email);
-
         user.setRole("USER");
 
         // 3. 保存
