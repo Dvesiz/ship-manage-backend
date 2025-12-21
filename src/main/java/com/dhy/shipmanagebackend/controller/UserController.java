@@ -4,6 +4,7 @@ package com.dhy.shipmanagebackend.controller;
 import com.dhy.shipmanagebackend.entity.Result;
 import com.dhy.shipmanagebackend.entity.User;
 import com.dhy.shipmanagebackend.service.UserService;
+import com.dhy.shipmanagebackend.utils.BcryptUtil;
 import com.dhy.shipmanagebackend.utils.JwtUtil;
 import com.dhy.shipmanagebackend.utils.Md5Util;
 import com.dhy.shipmanagebackend.utils.ThreadLocalUtil;
@@ -23,11 +24,9 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
-
     @PostMapping("/send-code")
     public Result sendCode(@RequestParam @Email String email) {
         // 这里可以先简单校验一下邮箱是否已被注册
-        // ... (可选逻辑)
 
         userService.sendCode(email);
         return Result.success("验证码已发送，请注意查收");
@@ -61,8 +60,8 @@ public class UserController {
         }
 
         // 3. 校验密码
-        // Md5Util.checkPassword(用户输入的明文, 数据库里的密文)
-        if (Md5Util.checkPassword(password, loginUser.getPasswordHash())) {
+
+        if (BcryptUtil.match(password, loginUser.getPasswordHash())) {
 
             // 4. 密码正确，生成 JWT 令牌
             Map<String, Object> claims = new HashMap<>();
@@ -111,5 +110,29 @@ public class UserController {
     public Result update(@RequestBody User user) {
         userService.update(user);
         return Result.success();
+    }
+
+    @PatchMapping("/password")
+    public Result updatePassword(@RequestParam @Pattern(regexp = "^\\S{5,16}$") String oldPassword,
+                                 @RequestParam @Pattern(regexp = "^\\S{5,16}$") String newPassword) {
+        // 1. 获取当前登录用户
+        Map<String, Object> map = ThreadLocalUtil.get();
+        String username = (String) map.get("username");
+
+        // 2. 根据用户名查询用户
+        User loginUser = userService.findByUsername(username);
+        if (loginUser == null) {
+            return Result.error("用户不存在");
+        }
+        if (!BcryptUtil.match(oldPassword, loginUser.getPasswordHash())) {
+            return Result.error("旧密码错误");
+        }
+        if (BcryptUtil.match(newPassword, loginUser.getPasswordHash())) {
+            return Result.error("新密码不能与旧密码相同");
+        }
+        loginUser.setPasswordHash(BcryptUtil.encode(newPassword));
+        userService.update(loginUser);
+        return Result.success();
+
     }
 }

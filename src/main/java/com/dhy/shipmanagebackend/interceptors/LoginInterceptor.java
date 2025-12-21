@@ -35,6 +35,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         } catch (Exception e) {
             // 5. 校验失败（Token过期或被篡改），设置响应状态码 401 (未授权)
             response.setStatus(401);
+            System.out.println(e.getMessage());
             // 不放行
             return false;
         }

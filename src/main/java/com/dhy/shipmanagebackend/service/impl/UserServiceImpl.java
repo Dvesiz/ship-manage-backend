@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dhy.shipmanagebackend.entity.User;
 import com.dhy.shipmanagebackend.mapper.UserMapper;
 import com.dhy.shipmanagebackend.service.UserService;
+import com.dhy.shipmanagebackend.utils.BcryptUtil;
 import com.dhy.shipmanagebackend.utils.JwtUtil;
 import com.dhy.shipmanagebackend.utils.Md5Util;
 import com.dhy.shipmanagebackend.utils.RandomUtil;
@@ -97,7 +98,6 @@ public class UserServiceImpl implements UserService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-            // ⚠️ 关键修改：这里不能写 163 邮箱，必须用配置里的变量
             helper.setFrom(fromEmail, "船舶管理系统官方"); // 第二个参数是发件人昵称
 
             helper.setTo(email);
@@ -128,13 +128,13 @@ public class UserServiceImpl implements UserService {
 
         // 2. 验证通过，手动删除 Redis 中的验证码（防止二次使用）
         stringRedisTemplate.delete("register:code:" + email);
-        // 使用Md5Util 加密密码
-        String md5Password = Md5Util.getMD5String(password);
+        // 使用Bcrypt 加密密码
+        String BcryptPassword = BcryptUtil.encode(password);
 
         // 创建对象
         User user = new User();
         user.setUsername(username);
-        user.setPasswordHash(md5Password);
+        user.setPasswordHash(BcryptPassword);
         user.setEmail(email);
         user.setRole("USER");
 
