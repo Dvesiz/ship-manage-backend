@@ -1,6 +1,9 @@
 package com.dhy.shipmanagebackend.controller;
 
 
+import cn.hutool.captcha.CaptchaUtil;
+import cn.hutool.captcha.LineCaptcha;
+import cn.hutool.core.lang.UUID;
 import com.dhy.shipmanagebackend.entity.Result;
 import com.dhy.shipmanagebackend.entity.User;
 import com.dhy.shipmanagebackend.service.UserService;
@@ -12,12 +15,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.constraints.Email;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Validated
 @RestController
@@ -25,6 +31,58 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    /**
+     * 获取图形验证码
+     * Redis 优化版：将验证码存入 Redis，有效期 2 分钟
+     */
+    @GetMapping("/captcha")
+    public Result<Map<String, String>> getCaptcha() {
+        // 1. 生成线段干扰的验证码 (宽120, 高40, 4个字符, 20条干扰线)
+        LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(120, 40, 4, 20);
+        String code = lineCaptcha.getCode(); // 验证码文本
+        String imageBase64 = lineCaptcha.getImageBase64(); // 图片 Base64
+
+        // 2. 生成唯一标识 UUID
+        String uuid = UUID.randomUUID().toString();
+
+        // 3. 存入 Redis (Key: "captcha:UUID", Value: "AB12", 过期时间: 2分钟)
+        String redisKey = "captcha:" + uuid;
+        stringRedisTemplate.opsForValue().set(redisKey, code, 2, TimeUnit.MINUTES);
+
+        // 4. 返回给前端 (前端需要 UUID 传回后端进行比对)
+        Map<String, String> map = new HashMap<>();
+        map.put("uuid", uuid);
+        map.put("img", "data:image/png;base64," + imageBase64);
+
+        return Result.success(map);
+    }
+
+    /**
+     * 内部辅助方法：校验验证码
+     */
+    private void validateCaptcha(String captcha, String uuid) {
+        if (!StringUtils.hasLength(captcha) || !StringUtils.hasLength(uuid)) {
+            throw new RuntimeException("请输入验证码");
+        }
+
+        String redisKey = "captcha:" + uuid;
+        String redisCode = stringRedisTemplate.opsForValue().get(redisKey);
+
+        if (redisCode == null) {
+            throw new RuntimeException("验证码已失效，请刷新");
+        }
+
+        // 忽略大小写比对
+        if (!redisCode.equalsIgnoreCase(captcha)) {
+            throw new RuntimeException("验证码错误");
+        }
+
+        // 验证通过后立即删除，防止重复使用（防重放攻击）
+        stringRedisTemplate.delete(redisKey);
+    }
     @PostMapping("/send-code")
     public Result sendCode(@RequestParam @Email String email) {
         // 这里可以先简单校验一下邮箱是否已被注册
@@ -33,11 +91,10 @@ public class UserController {
         return Result.success("验证码已发送，请注意查收");
     }
     @PostMapping("/register")
-    public Result register(@Pattern(regexp = "^\\S{5,16}$") String username,
-                           @Pattern(regexp = "^\\S{5,16}$") String password,
-                           @Email String email,
-                           @NotBlank(message = "验证码不能为空")String code) { // 增加邮箱校验
-
+    public Result register(String username, String password, String email, String code,
+                           String captcha, String captchaUuid) { // 增加邮箱校验
+        // 校验验证码
+        validateCaptcha(captcha, captchaUuid);
         User u = userService.findByUsername(username);
         if (u == null) {
             // 传入 email
@@ -47,10 +104,11 @@ public class UserController {
             return Result.error("用户名已被占用");
         }
     }
-
     @PostMapping("/login")
-    public Result<String> login(@Pattern(regexp = "^\\S{5,16}$") String username,
-                                @Pattern(regexp = "^\\S{5,16}$") String password) {
+    public Result<String> login(String username, String password,
+                                String captcha, String captchaUuid) {
+        // 1. 先校验图形验证码
+        validateCaptcha(captcha, captchaUuid);
 
         // 1. 根据用户名查询用户
         User loginUser = userService.findByUsername(username);

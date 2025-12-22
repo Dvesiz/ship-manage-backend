@@ -35,3 +35,10 @@ spring:
 resend:
   api-key: re_J6zbfm3o_3j8w1FV2YAVqnPf1Q8qAc5Fw
   from-email: system@mail.donghangyu.dpdns.org
+
+s3:
+  endpoint: https://objectstorageapi.ap-northeast-1.clawcloudrun.com  # 使用 External 地址
+  region: ap-northeast-1      # 从域名看出来的区域代码
+  access-key: wm810645      # 你的 Access Key
+  secret-key: l8b9bwzghsc6rqf8 # 你的 Secret Key
+  bucket-name: wm810645-yiyu

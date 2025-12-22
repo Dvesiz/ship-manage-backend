@@ -57,40 +57,53 @@ public class UserServiceImpl implements UserService {
     public void sendCode(String email) {
         // 1. 生成 6 位随机验证码
         String code = RandomUtil.getSixBitRandom();
-        String Codehtml = "<div style=\"background-color: #f6f8fa; padding: 20px; font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;\">" +
+        String Codehtml = "<div style=\"background:#f2f4f7;padding:56px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,Helvetica,Arial,sans-serif;\">" +
 
-                // 卡片容器：白底，微弱边框，圆角
-                "<div style=\"max-width: 500px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; overflow: hidden;\">" +
+                "<div style=\"max-width:460px;margin:0 auto;background:#ffffff;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,0.08);overflow:hidden;\">" +
 
-                // 头部：品牌色条或简单的标题
-                "<div style=\"padding: 24px; border-bottom: 1px solid #e1e4e8; background-color: #ffffff;\">" +
-                "<h1 style=\"margin: 0; font-size: 20px; color: #24292e; font-weight: 600;\">船舶管理系统</h1>" +
+                // Header
+                "<div style=\"padding:36px 32px 24px;text-align:center;\">" +
+                "<div style=\"font-size:13px;letter-spacing:1.5px;color:#6b7280;margin-bottom:12px;\">" +
+                "SHIP MANAGEMENT SYSTEM" +
+                "</div>" +
+                "<h1 style=\"margin:0;font-size:22px;font-weight:600;color:#0f172a;\">" +
+                "身份验证" +
+                "</h1>" +
                 "</div>" +
 
-                // 内容区域
-                "<div style=\"padding: 32px 24px;\">" +
-                "<p style=\"margin: 0 0 20px; font-size: 16px; color: #24292e;\">您好，</p>" +
-                "<p style=\"margin: 0 0 24px; font-size: 16px; color: #24292e; line-height: 1.6;\">" +
-                "我们收到了您的登录/注册请求。请使用以下验证码完成身份验证：" +
+                // Content
+                "<div style=\"padding:0 32px 36px;\">" +
+                "<p style=\"margin:24px 0 16px;font-size:15px;color:#334155;line-height:1.8;\">" +
+                "您好，" +
                 "</p>" +
 
-                // 验证码区域：灰色背景盒，强调文字
-                "<div style=\"background-color: #f6f8fa; padding: 16px; text-align: center; border-radius: 6px; margin-bottom: 24px;\">" +
-                "<span style=\"font-size: 32px; font-family: monospace; font-weight: 700; letter-spacing: 6px; color: #0969da;\">" +
+                "<p style=\"margin:0 0 32px;font-size:15px;color:#334155;line-height:1.8;\">" +
+                "我们收到了您的登录或注册请求。<br/>" +
+                "请输入以下验证码以继续操作：" +
+                "</p>" +
+
+                // Code (核心视觉)
+                "<div style=\"text-align:center;margin:40px 0 36px;\">" +
+                "<div style=\"display:inline-block;padding:18px 28px;border-radius:14px;" +
+                "background:linear-gradient(180deg,#f8fafc,#eef2f7);\">" +
+                "<span style=\"font-size:40px;font-weight:700;letter-spacing:10px;" +
+                "color:#1e3a8a;font-family:ui-monospace,Menlo,Monaco,Consolas,monospace;\">" +
                 code +
                 "</span>" +
                 "</div>" +
+                "</div>" +
 
-                // 提示信息
-                "<p style=\"margin: 0; font-size: 14px; color: #57606a;\">" +
-                "该验证码将在 <strong>5 分钟</strong> 后失效。如果这不是您的操作，请忽略此邮件。" +
+                "<p style=\"margin:0;font-size:13px;color:#64748b;line-height:1.7;\">" +
+                "验证码有效期为 <strong>5 分钟</strong>。<br/>" +
+                "如果您未发起此操作，请忽略本邮件。" +
                 "</p>" +
                 "</div>" +
 
-                // 底部：弱化显示的版权信息
-                "<div style=\"padding: 16px 24px; background-color: #f6f8fa; border-top: 1px solid #e1e4e8; font-size: 12px; color: #8c959f; text-align: center;\">" +
-                "<p style=\"margin: 0;\">此邮件由系统自动发送，请勿回复。</p>" +
-                "<p style=\"margin: 5px 0 0;\">© 2025 Ship Management System</p>" +
+                // Footer
+                "<div style=\"padding:24px;text-align:center;background:#f8fafc;" +
+                "font-size:12px;color:#94a3b8;\">" +
+                "本邮件由系统自动发送，请勿回复<br/>" +
+                "© 2025 Ship Management System" +
                 "</div>" +
 
                 "</div>" +
