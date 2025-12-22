@@ -3,6 +3,7 @@ package com.dhy.shipmanagebackend.service;
 
 import com.dhy.shipmanagebackend.entity.Result;
 import com.dhy.shipmanagebackend.entity.User;
+import org.hibernate.validator.constraints.URL;
 import org.springframework.stereotype.Service;
 
 
@@ -16,4 +17,6 @@ public interface UserService {
     void update(User user);
     //邮箱登录
     String loginByEmail(String email, String code);
+    //修改头像
+    void updateAvatar(String username, String avatarUrl);
 }

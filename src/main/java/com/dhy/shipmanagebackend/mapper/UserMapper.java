@@ -9,4 +9,6 @@ import org.apache.ibatis.annotations.Select;
 public interface UserMapper extends BaseMapper<User> {
     @Select("select * from users where email = #{email}")
     User findByEmail(String email);
+
+
 }

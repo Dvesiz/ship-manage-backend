@@ -2,6 +2,7 @@ package com.dhy.shipmanagebackend.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.dhy.shipmanagebackend.entity.User;
 import com.dhy.shipmanagebackend.mapper.UserMapper;
 import com.dhy.shipmanagebackend.service.UserService;
@@ -18,6 +19,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -172,5 +174,18 @@ public class UserServiceImpl implements UserService {
         stringRedisTemplate.delete("login:code:" + email);
 
         return token;
+    }
+
+    @Override
+    public void updateAvatar(String avatarUrl, String username) {
+        // 创建更新条件
+        LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper
+                .eq(User::getUsername, username)      // WHERE username = ?
+                .set(User::getAvatarUrl, avatarUrl)   // SET avatar_url = ?
+                .set(User::getUpdatedAt, LocalDateTime.now()); // 同时更新时间
+
+        // 执行更新
+        userMapper.update(null, updateWrapper);
     }
 }

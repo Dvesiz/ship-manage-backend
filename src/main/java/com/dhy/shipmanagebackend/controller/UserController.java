@@ -10,6 +10,7 @@ import com.dhy.shipmanagebackend.utils.Md5Util;
 import com.dhy.shipmanagebackend.utils.ThreadLocalUtil;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -135,4 +136,16 @@ public class UserController {
         return Result.success();
 
     }
+
+    @PatchMapping("/avatar")
+    public Result updateAvatar(@RequestParam @URL(message = "图片地址格式不正确") String avatarUrl) {
+        // 1. 获取当前登录用户
+        Map<String, Object> map = ThreadLocalUtil.get();
+        String username = (String) map.get("username");
+
+        // 2. 调用 Service 更新
+        userService.updateAvatar(username, avatarUrl);
+        return Result.success();
+    }
+
 }
