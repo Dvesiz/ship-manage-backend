@@ -10,26 +10,11 @@ spring:
       map-underscore-to-camel-case: true # ????????
       log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # ????? SQL ?????????
 
-#  mail:
-#    host: smtp.resend.com
-#    port: 465
-#    username: resend
-#    password: re_J6zbfm3o_3j8w1FV2YAVqnPf1Q8qAc5Fw  # 你的 Resend API Key
-#    protocol: smtps
-#    properties:
-#      mail:
-#        smtp:
-#          auth: true
-#          starttls:
-#            enable: true
-#            required: true
-#          ssl:
-#            enable: true
   mail:
     host: smtp.resend.com
     port: 587               # 修改端口为 587
     username: resend
-    password: re_J6zbfm3o_3j8w1FV2YAVqnPf1Q8qAc5Fw
+    password: 
     # protocol: smtp        # 可以注释掉 protocol，让 Spring 自动处理
     properties:
       mail:
@@ -51,12 +36,8 @@ spring:
       max-request-size: 50MB   # 整个请求最大大小 (默认是 10MB)
 
 resend:
-  api-key: re_J6zbfm3o_3j8w1FV2YAVqnPf1Q8qAc5Fw
-  from-email: system@mail.donghangyu.dpdns.org
+  api-key: 
+  from-email: 
 
-s3:
-  endpoint: https://objectstorageapi.ap-northeast-1.clawcloudrun.com  # 使用 External 地址
-  region: ap-northeast-1      # 从域名看出来的区域代码
-  access-key: wm810645      # 你的 Access Key
-  secret-key: l8b9bwzghsc6rqf8 # 你的 Secret Key
-  bucket-name: wm810645-yiyu
+
+
