@@ -10,27 +10,45 @@ spring:
       map-underscore-to-camel-case: true # ????????
       log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # ????? SQL ?????????
 
+#  mail:
+#    host: smtp.resend.com
+#    port: 465
+#    username: resend
+#    password: re_J6zbfm3o_3j8w1FV2YAVqnPf1Q8qAc5Fw  # 你的 Resend API Key
+#    protocol: smtps
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+#            required: true
+#          ssl:
+#            enable: true
   mail:
     host: smtp.resend.com
-    port: 465
+    port: 587               # 修改端口为 587
     username: resend
-    password: re_J6zbfm3o_3j8w1FV2YAVqnPf1Q8qAc5Fw  # 你的 Resend API Key
-    protocol: smtps
+    password: re_J6zbfm3o_3j8w1FV2YAVqnPf1Q8qAc5Fw
+    # protocol: smtp        # 可以注释掉 protocol，让 Spring 自动处理
     properties:
       mail:
         smtp:
           auth: true
           starttls:
-            enable: true
+            enable: true    # 587 端口必须开启 STARTTLS
             required: true
-          ssl:
-            enable: true
 
   data:
     redis:
       host: localhost
       port: 6379
       password: 123456
+
+  servlet:
+    multipart:
+      max-file-size: 50MB      # 单个文件最大大小 (默认是 1MB)
+      max-request-size: 50MB   # 整个请求最大大小 (默认是 10MB)
 
 resend:
   api-key: re_J6zbfm3o_3j8w1FV2YAVqnPf1Q8qAc5Fw

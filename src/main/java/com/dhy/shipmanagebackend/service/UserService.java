@@ -3,6 +3,7 @@ package com.dhy.shipmanagebackend.service;
 
 import com.dhy.shipmanagebackend.entity.Result;
 import com.dhy.shipmanagebackend.entity.User;
+import com.dhy.shipmanagebackend.entity.UserVO;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.stereotype.Service;
 

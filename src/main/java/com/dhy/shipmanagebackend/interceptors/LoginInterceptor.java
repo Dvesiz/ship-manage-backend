@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -23,6 +24,12 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         // 2. 校验令牌
         try {
+            //从redis中获取相同的token
+            ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
+            String redisToken = ops.get(token);
+            if (redisToken == null || !redisToken.equals(token)) {
+                throw new RuntimeException("用户未登录");
+            }
             // 解析 token 获取业务数据（claims）
             Map<String, Object> claims = JwtUtil.parseToken(token);
 

@@ -6,6 +6,7 @@ import cn.hutool.captcha.LineCaptcha;
 import cn.hutool.core.lang.UUID;
 import com.dhy.shipmanagebackend.entity.Result;
 import com.dhy.shipmanagebackend.entity.User;
+import com.dhy.shipmanagebackend.entity.UserVO;
 import com.dhy.shipmanagebackend.service.UserService;
 import com.dhy.shipmanagebackend.utils.BcryptUtil;
 import com.dhy.shipmanagebackend.utils.JwtUtil;
@@ -14,8 +15,10 @@ import com.dhy.shipmanagebackend.utils.ThreadLocalUtil;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.URL;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -130,7 +133,9 @@ public class UserController {
 
             // 生成 Token
             String token = JwtUtil.genToken(claims);
-
+            //把token存储到Redis中
+            ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
+            ops.set(token,token,12, TimeUnit.HOURS);
             // 返回 Token 给前端
             return Result.success(token);
         }
@@ -148,7 +153,7 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public Result<User> userInfo() {
+    public Result<UserVO> userInfo() {
         // 1. 从 ThreadLocal 获取当前登录用户的数据
         // 因为你的工具类是泛型的，这里强转成 Map 即可
         Map<String, Object> map = ThreadLocalUtil.get();
@@ -158,11 +163,9 @@ public class UserController {
 
         // 2. 查询数据库
         User user = userService.findByUsername(username);
-
-        // 3. 抹掉密码，不返回给前端
-        user.setPasswordHash("******");
-
-        return Result.success(user);
+        UserVO uservo = new UserVO();
+        BeanUtils.copyProperties(user, uservo);
+        return Result.success(uservo);
     }
 
     @PutMapping("/update")
@@ -202,7 +205,7 @@ public class UserController {
         String username = (String) map.get("username");
 
         // 2. 调用 Service 更新
-        userService.updateAvatar(username, avatarUrl);
+        userService.updateAvatar(avatarUrl, username);
         return Result.success();
     }
 
