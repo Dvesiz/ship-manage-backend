@@ -1,159 +1,157 @@
 # 🚢 Ship Manage Backend
 
-> 船舶管理系统后端服务 — 基于 Spring Boot 提供 RESTful API 支持  
-> 用于船舶数据的增删改查与业务逻辑处理。:contentReference[oaicite:1]{index=1}
+船舶管理系统后端服务，基于 **Spring Boot** 构建，提供标准 RESTful API，用于船舶信息的统一管理与数据持久化，适合作为前后端分离项目的后端支撑。
 
 ---
 
-## 🧠 项目简介
+## 📌 项目背景
 
-这是一个以 **Java + Spring Boot** 构建的后端服务，用于管理船舶信息。通过规范的 REST API 提供数据访问服务，可和前端或移动端协作使用。:contentReference[oaicite:2]{index=2}
+本项目用于实现船舶信息的集中化管理，支持船舶基础数据的增删改查操作。  
+系统采用经典的分层架构设计，具备良好的可维护性与扩展性，可作为中小型后台管理系统或教学 / 简历展示项目使用。
 
 ---
 
-## 📦 核心功能概览
+## ✨ 功能特性
 
 - 🚢 船舶信息管理（CRUD）
-- 🔍 支持条件查询
-- 📊 数据持久化存储到关系型数据库
-- 💡 REST 标准 API 设计
-- 📦 可部署为独立服务或容器化镜像
+- 🔍 船舶数据查询
+- 🧩 RESTful API 设计
+- 💾 数据持久化存储
+- 📦 独立后端服务部署
 
 ---
 
-## 🏗 技术栈
+## 🛠 技术栈
 
-| 技术           | 用途                        |
-|----------------|-----------------------------|
-| Java           | 编程语言                    |
-| Spring Boot    | 应用框架                    |
-| Spring MVC     | REST API 实现               |
-| Spring Data JPA| 数据持久层                  |
-| MySQL / 其他   | 数据库                      |
-| Maven          | 构建 & 依赖管理             |
+| 技术 | 说明 |
+|----|----|
+| Java | 核心开发语言 |
+| Spring Boot | 后端应用框架 |
+| Spring MVC | REST API |
+| Spring Data JPA | ORM 持久层 |
+| MySQL | 关系型数据库 |
+| Maven | 构建与依赖管理 |
 
 ---
 
-## 📁 项目结构
+## 🗂 项目结构
 
-ship-manage-backend/
+```text
+ship-manage-backend
 ├── .mvn/
 ├── src/
-│ ├── main/
-│ │ ├── java/ # 源代码
-│ │ │ └── com/...
-│ │ └── resources/ # 配置文件
-├── db.sql # 初始化数据库示例
-├── pom.xml # Maven 配置
-└── mvnw / mvnw.cmd # Maven Wrapper
-
-yaml
-复制代码
+│   └── main/
+│       ├── java/
+│       │   └── com/xxx/
+│       │       ├── controller/    # 接口层
+│       │       ├── service/       # 业务层
+│       │       ├── repository/    # 数据访问层
+│       │       ├── entity/        # 实体类
+│       │       └── exception/     # 异常处理
+│       └── resources/
+│           ├── application.properties
+│           └── application.yml
+├── db.sql
+├── pom.xml
+├── mvnw
+└── mvnw.cmd
 
 ---
 
-## ⚙️ 快速安装与运行
-
-### 先决条件
+## ⚙️ 环境要求
 
 - JDK 17+
-- Maven 3+
-- MySQL 5.7+（可替换其他数据库）
-- 可选：IDE（如 IntelliJ IDEA）
+- Maven 3.8+
+- MySQL 5.7+
 
-### 步骤
+---
 
-1. 克隆仓库：
+## 🚀 快速启动
+
+### 1️⃣ 克隆项目
 
 ```bash
 git clone https://github.com/Dvesiz/ship-manage-backend.git
 cd ship-manage-backend
-配置数据库（MySQL 示例）
 
-sql
-复制代码
+
+### 2️⃣ 初始化数据库
+
+执行项目根目录下的 `db.sql` 文件，用于创建数据库及表结构：
+
+```sql
 SOURCE db.sql;
-修改 application.properties：
 
-properties
-复制代码
+###3️⃣ 配置数据库连接
+
+在 application.properties 或 application.yml 中配置数据库连接信息。
+
+application.properties 示例
+```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/ship_manage_db?useSSL=false&serverTimezone=UTC
 spring.datasource.username=root
 spring.datasource.password=your_password
-启动服务：
 
-bash
-复制代码
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=true
+spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+
+###4️⃣ 启动项目
+方式一：使用 Maven 直接启动
+```bash
 ./mvnw spring-boot:run
-或打包运行：
 
-bash
-复制代码
+方式二：打包后运行
+```bash
 ./mvnw clean package
 java -jar target/ship-manage-backend-*.jar
-📡 REST API 示例
-以下 API 路径示例基于常见 REST 设计习惯。真实路径请参考代码 Controller 层。
 
-Method	Endpoint	描述
-GET	/ships	获取所有船舶列表
-GET	/ships/{id}	获取指定船舶详情
-POST	/ships	创建新的船舶记录
-PUT	/ships/{id}	更新船舶信息
-DELETE	/ships/{id}	删除船舶
 
-📌 如项目添加 Swagger，可在 /swagger-ui.html 查看 API 文档（如启用）。
+服务默认启动端口为：
+```bash
+http://localhost:8080
 
-🧪 核心模块
-text
-复制代码
-src/main/java/…
-├── controller/     # 请求入口 API 控制器
-├── service/        # 业务逻辑处理
-├── repository/     # 数据访问层（JPA / Mapper）
-├── entity/         # 数据实体定义
-├── dto/            # 数据传输对象（如有）
-└── exception/      # 异常处理与统一返回
-🧠 技术亮点（简历友好）
-💡 后端架构与设计
+---
 
-使用 Spring Boot 构建高效 RESTful 服务。
+##📡 API 接口示例
+| 方法     | 接口路径          | 描述     |
+| ------ | ------------- | ------ |
+| GET    | `/ships`      | 查询船舶列表 |
+| GET    | `/ships/{id}` | 查询船舶详情 |
+| POST   | `/ships`      | 新增船舶   |
+| PUT    | `/ships/{id}` | 更新船舶   |
+| DELETE | `/ships/{id}` | 删除船舶   |
 
-按照 Controller-Service-Repository 分层架构提高模块职责清晰度。
+---
 
-典型的 CRUD 操作封装 与业务逻辑解耦。
+##🧠 系统设计说明
+采用 Controller / Service / Repository 分层架构
 
-💾 数据持久化
+Controller 层负责请求处理与参数校验
 
-使用 JPA / ORM 框架 进行对象关系映射。
+Service 层承载核心业务逻辑
 
-支持数据库结构初始化脚本（db.sql）。
+Repository 层负责数据库访问
 
-⚙️ 部署与构建
+Entity 映射数据库表结构
 
-使用 Maven Wrapper (mvnw) 提供一致构建环境。
+Exception 层统一处理系统异常
 
-可通过标准 JAR 启动部署或用于容器化部署。
+---
 
-🚀 工程规范与可维护性
+##⭐ 技术亮点（简历友好）
 
-清晰的项目结构符合企业级后端标准。
+使用 Spring Boot 构建 RESTful 后端服务
 
-可扩展性良好，方便未来集成权限、缓存、消息队列等功能。
+严格遵循分层架构设计，职责清晰
 
-📈 简历描述示例
+使用 Spring Data JPA 实现 ORM 持久化
 
-构建了基于 Spring Boot 的后端服务，设计和实现 RESTful API，实现了船舶数据的完整生命周期管理。采用分层架构和 JPA 数据持久化策略，提高了系统可维护性和扩展能力。具备标准化部署方案，支持生产环境部署。
+提供数据库初始化脚本，支持快速部署
 
-🤝 贡献者指南
-欢迎提交 issue 或 PR：
+Maven Wrapper 保证构建环境一致性
 
-Fork 仓库
+项目结构符合企业级 Java 后端开发规范
 
-新建功能分支 feature/xxx
+---
 
-提交代码 & 文档
-
-创建 Pull Request
-
-📜 LICENSE
-默认 MIT（可根据需要调整）
